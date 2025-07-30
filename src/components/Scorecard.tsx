@@ -1,5 +1,7 @@
 
+
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts'
+
 import type { ScoreType } from '@/types/agent'
 
 export default function Scorecard({ scores }: { scores: ScoreType[] }) {

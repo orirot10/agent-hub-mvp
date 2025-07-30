@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { callOpenAI } from "@/lib/openaiClient"
 import type { AgentType } from "@/types/agent"
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export default function AgentModal({ open, onClose, agent }: Props) {
+
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,7 @@ export default function AgentModal({ open, onClose, agent }: Props) {
         <button onClick={runAgent} className="bg-blue-600 text-white px-4 py-2 rounded">
           {loading ? 'Running...' : 'Run'}
         </button>
-        {output && <div className="p-2 bg-gray-100 rounded text-sm whitespace-pre-wrap">{output}</div>}
+        {output && <div className="p-2 bg-gray-800 rounded text-sm whitespace-pre-wrap">{output}</div>}
       </DialogContent>
     </Dialog>
   );

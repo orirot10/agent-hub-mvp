@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react'
 
 export default function LogsPage() {
-  const [logs, setLogs] = useState([])
+  const [logs, setLogs] = useState<any[]>([])
+
+
 
   useEffect(() => {
     fetch('/api/logs')
       .then(res => res.json())
-      .then(data => setLogs(data.logs || []))
+
+      .then(data => {
+        const entries = Array.isArray(data.logs) ? data.logs : []
+        setLogs(entries)
+      })
+
       .catch(() => {})
   }, [])
 

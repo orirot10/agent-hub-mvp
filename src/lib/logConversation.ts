@@ -82,3 +82,16 @@ export function appendConversation(entry: ConversationEntry) {
   fs.writeFileSync(legacyLogPath, JSON.stringify(logs, null, 2))
 }
 
+
+export function readLegacyConversations(): ConversationEntry[] {
+  if (!fs.existsSync(legacyLogPath)) return []
+  try {
+    const data = fs.readFileSync(legacyLogPath, 'utf8')
+    const logs = JSON.parse(data)
+    return Array.isArray(logs) ? logs : []
+  } catch {
+    return []
+  }
+}
+
+

@@ -36,7 +36,7 @@ export default function AgentModal({
         <button onClick={runAgent} className="bg-blue-600 text-white px-4 py-2 rounded">
           {loading ? 'Running...' : 'Run'}
         </button>
-        {output && <div className="p-2 bg-gray-100 rounded text-sm whitespace-pre-wrap">{output}</div>}
+        {output && <div className="p-2 bg-gray-800 rounded text-sm whitespace-pre-wrap">{output}</div>}
       </DialogContent>
     </Dialog>
   );

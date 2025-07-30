@@ -10,7 +10,7 @@ export default function AgentModal({ open, onClose, agent }) {
 
   const runAgent = async () => {
     setLoading(true);
-    const result = await callOpenAI(agent.prompt + '\n' + input);
+    const result = await callOpenAI(agent.prompt + '\n' + input, { agentId: agent.id, userInput: input })
     setOutput(result);
     setLoading(false);
   };

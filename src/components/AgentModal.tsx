@@ -2,8 +2,17 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { callOpenAI } from "@/lib/openaiClient";
+import type { AgentType } from "@/types/agent";
 
-export default function AgentModal({ open, onClose, agent }) {
+export default function AgentModal({
+  open,
+  onClose,
+  agent,
+}: {
+  open: boolean
+  onClose: () => void
+  agent: AgentType
+}) {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);

@@ -4,6 +4,7 @@ import Layout from "@/components/Layout"
 import { agents } from "@/lib/agents"
 import { chatCompletion } from "@/lib/openaiClient"
 import type { ChatMessage } from "@/types/chat"
+import AgentCard from "@/components/AgentCard"
 
 export default function HomePage() {
   const [input, setInput] = useState('')
@@ -57,25 +58,36 @@ export default function HomePage() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-[80vh] border rounded p-4">
-        <div className="flex-1 overflow-y-auto space-y-2" ref={containerRef}>
-          {messages.map((m, idx) => (
-            <div key={idx} className="whitespace-pre-wrap">
-              <span className="font-bold mr-1">{nameFor(m.agentId)}:</span>
-              {m.content}
-            </div>
-          ))}
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-2 space-y-4">
+          <div className="grid sm:grid-cols-2 gap-4">
+            {agents.map(agent => (
+              <AgentCard key={agent.id} agent={agent} />
+            ))}
+          </div>
         </div>
-        <div className="mt-4 flex gap-2">
-          <input
-            className="flex-1 border rounded p-2"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Type a message. Mention agents with @agentId"
-          />
-          <button className="bg-blue-600 text-white px-4 rounded" onClick={sendMessage}>
-            Send
-          </button>
+        <div className="md:col-span-1">
+          <div className="flex flex-col h-[70vh] border rounded p-4">
+            <div className="flex-1 overflow-y-auto space-y-2" ref={containerRef}>
+              {messages.map((m, idx) => (
+                <div key={idx} className="whitespace-pre-wrap">
+                  <span className="font-bold mr-1">{nameFor(m.agentId)}:</span>
+                  {m.content}
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <input
+                className="flex-1 border rounded p-2"
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder="Type a message. Mention agents with @agentId"
+              />
+              <button className="bg-blue-600 text-white px-4 rounded" onClick={sendMessage}>
+                Send
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>

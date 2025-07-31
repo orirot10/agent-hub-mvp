@@ -1,5 +1,5 @@
 
-export async function callOpenAI(prompt: string): Promise<string> {
+export async function callOpenAI(prompt: string, meta?: Record<string, any>): Promise<string> {
   const response = await fetch('/api/openai', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

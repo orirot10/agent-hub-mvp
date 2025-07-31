@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2025-07-30T13:17:21.094Z",
+    "prompt": "You are the Geo-Matcher. Assess the country's viability considering government traction, infrastructure, talent, capital and security. Provide a go/no-go decision and timing recommendation.\nhi",
+    "response": "Sorry, you didn't provide a name of the country for evaluation. Could you please specify which country you want to be assessed?",
+    "meta": {
+      "agentId": "geo_matcher",
+      "userInput": "hi"
+    }
+  }
+]

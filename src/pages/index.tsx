@@ -56,6 +56,17 @@ export default function HomePage() {
 
   const nameFor = (id: string) => (id === 'user' ? 'You' : agents.find(a => a.id === id)?.name || id)
 
+  const renderContent = (text: string) =>
+    text.split(/(@[\w-]+)/g).map((part, i) =>
+      part.startsWith('@') ? (
+        <span key={i}>
+          @<span className="text-blue-600">{part.slice(1)}</span>
+        </span>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    )
+
   return (
     <Layout>
       <div className="grid md:grid-cols-3 gap-6">
@@ -72,7 +83,7 @@ export default function HomePage() {
               {messages.map((m, idx) => (
                 <div key={idx} className="whitespace-pre-wrap">
                   <span className="font-bold mr-1">{nameFor(m.agentId)}:</span>
-                  {m.content}
+                  {renderContent(m.content)}
                 </div>
               ))}
             </div>

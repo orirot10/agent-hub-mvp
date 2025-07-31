@@ -1,7 +1,9 @@
 
 //import { Card, CardContent } from "@/components/ui/card";
+
 import { useRouter } from "next/router";
 import type { AgentType } from "@/types/agent";
+
 
 export default function AgentCard({ agent }: { agent: AgentType }) {
   const router = useRouter();

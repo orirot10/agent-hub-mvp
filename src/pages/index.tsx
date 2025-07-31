@@ -54,6 +54,20 @@ export default function HomePage() {
     }
   }
 
+  const saveConversation = async () => {
+    if (messages.length === 0) return
+    const conversationId = crypto.randomUUID()
+    try {
+      await fetch('/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId, messages }),
+      })
+    } catch {
+      // ignore
+    }
+  }
+
   const nameFor = (id: string) => (id === 'user' ? 'You' : agents.find(a => a.id === id)?.name || id)
 
   const renderContent = (text: string) =>
@@ -96,6 +110,9 @@ export default function HomePage() {
               />
               <button className="bg-blue-600 text-white px-4 rounded" onClick={sendMessage}>
                 Send
+              </button>
+              <button className="bg-green-600 text-white px-4 rounded" onClick={saveConversation}>
+                Save
               </button>
             </div>
           </div>

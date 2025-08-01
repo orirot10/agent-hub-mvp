@@ -1,7 +1,6 @@
 // src/pages/api/openai.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import OpenAI from 'openai'
-import { appendConversation } from '@/lib/logConversation'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

@@ -1,9 +1,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import Layout from "@/components/Layout"
-import { agents } from "@/lib/agents"
 import { chatCompletion } from "@/lib/openaiClient"
 import type { ChatMessage } from "@/types/chat"
+import type { AgentType } from "@/types/agent"
 import AgentCard from "@/components/AgentCard"
 
 export default function HomePage() {
@@ -13,12 +13,20 @@ export default function HomePage() {
     const saved = sessionStorage.getItem('chat')
     return saved ? JSON.parse(saved) : []
   })
+  const [agents, setAgents] = useState<AgentType[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     sessionStorage.setItem('chat', JSON.stringify(messages))
     containerRef.current?.scrollTo(0, containerRef.current.scrollHeight)
   }, [messages])
+
+  useEffect(() => {
+    fetch('/api/agents')
+      .then(res => res.json())
+      .then(setAgents)
+      .catch(() => setAgents([]))
+  }, [])
 
   const extractMentions = (text: string) => {
     const ids = Array.from(new Set(text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []))
@@ -54,6 +62,43 @@ export default function HomePage() {
     }
   }
 
+  const addAgent = async () => {
+    const id = prompt('Agent ID?')?.trim()
+    if (!id) return
+    const name = prompt('Name?', id) || id
+    const purpose = prompt('Purpose?') || ''
+    const mdFile = prompt('Markdown file path?', `data/agents/${id}.md`)?.trim()
+    if (!mdFile) return
+    const newAgent = { id, name, purpose, inputType: 'text', mdFile }
+    await fetch('/api/agents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAgent),
+    })
+    const created = await fetch(`/api/agents/${id}`).then(res => res.json())
+    setAgents(prev => [...prev, created])
+  }
+
+  const editAgent = async (agent: AgentType) => {
+    const name = prompt('Name?', agent.name)
+    if (!name) return
+    const purpose = prompt('Purpose?', agent.purpose) || ''
+    const mdFile = prompt('Markdown file path?', agent.mdFile || '')?.trim()
+    await fetch(`/api/agents/${agent.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, purpose, mdFile }),
+    })
+    const updated = await fetch(`/api/agents/${agent.id}`).then(res => res.json())
+    setAgents(prev => prev.map(a => (a.id === agent.id ? updated : a)))
+  }
+
+  const deleteAgent = async (id: string) => {
+    if (!confirm('Delete agent?')) return
+    await fetch(`/api/agents/${id}`, { method: 'DELETE' })
+    setAgents(prev => prev.filter(a => a.id !== id))
+  }
+
   const saveConversation = async () => {
     if (messages.length === 0) return
     const conversationId = crypto.randomUUID()
@@ -85,9 +130,20 @@ export default function HomePage() {
     <Layout>
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={addAgent}
+          >
+            Add Agent
+          </button>
           <div className="grid sm:grid-cols-2 gap-4">
             {agents.map(agent => (
-              <AgentCard key={agent.id} agent={agent} />
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                onEdit={editAgent}
+                onDelete={deleteAgent}
+              />
             ))}
           </div>
         </div>

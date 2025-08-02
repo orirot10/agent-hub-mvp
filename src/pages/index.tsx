@@ -90,6 +90,7 @@ export default function HomePage() {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('chat')
       sessionStorage.removeItem('defaultAgentId')
+
     }
   }
 

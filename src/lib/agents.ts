@@ -10,12 +10,14 @@ function readAgents(): AgentRecord[] {
   try {
     const data = fs.readFileSync(agentsFile, 'utf8')
     return JSON.parse(data) as AgentRecord[]
+
   } catch {
     return []
   }
 }
 
 function writeAgents(agents: AgentRecord[]) {
+
   fs.mkdirSync(path.dirname(agentsFile), { recursive: true })
   fs.writeFileSync(agentsFile, JSON.stringify(agents, null, 2))
 }
@@ -40,6 +42,7 @@ export function getAgent(id: string): AgentType | undefined {
 }
 
 export function addAgent(agent: AgentRecord) {
+
   const agents = readAgents()
   if (agents.some(a => a.id === agent.id)) {
     throw new Error('Agent already exists')
@@ -49,6 +52,7 @@ export function addAgent(agent: AgentRecord) {
 }
 
 export function updateAgent(id: string, data: Partial<AgentRecord>) {
+
   const agents = readAgents()
   const idx = agents.findIndex(a => a.id === id)
   if (idx === -1) {

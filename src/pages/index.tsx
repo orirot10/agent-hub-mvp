@@ -13,12 +13,20 @@ export default function HomePage() {
     const saved = sessionStorage.getItem('chat')
     return saved ? JSON.parse(saved) : []
   })
+  const [defaultAgentId, setDefaultAgentId] = useState(() => {
+    if (typeof window === 'undefined') return 'prompt_specialist'
+    return sessionStorage.getItem('defaultAgentId') || 'prompt_specialist'
+  })
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     sessionStorage.setItem('chat', JSON.stringify(messages))
     containerRef.current?.scrollTo(0, containerRef.current.scrollHeight)
   }, [messages])
+
+  useEffect(() => {
+    sessionStorage.setItem('defaultAgentId', defaultAgentId)
+  }, [defaultAgentId])
 
   const extractMentions = (text: string) => {
     const ids = Array.from(new Set(text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []))
@@ -34,7 +42,11 @@ export default function HomePage() {
       timestamp: Date.now(),
     }
     setMessages(prev => [...prev, userMsg])
-    const targets = extractMentions(input)
+    const mentioned = extractMentions(input)
+    const targets =
+      mentioned.length > 0
+        ? mentioned
+        : agents.filter(a => a.id === defaultAgentId)
     setInput('')
 
     for (const agent of targets) {
@@ -52,6 +64,10 @@ export default function HomePage() {
       }
       setMessages(prev => [...prev, agentMsg])
     }
+
+    if (mentioned.length > 0) {
+      setDefaultAgentId(mentioned[mentioned.length - 1].id)
+    }
   }
 
   const saveConversation = async () => {
@@ -65,6 +81,15 @@ export default function HomePage() {
       })
     } catch {
       // ignore
+    }
+  }
+
+  const deleteConversation = () => {
+    setMessages([])
+    setDefaultAgentId('prompt_specialist')
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('chat')
+      sessionStorage.removeItem('defaultAgentId')
     }
   }
 
@@ -93,6 +118,9 @@ export default function HomePage() {
         </div>
         <div className="md:col-span-1">
           <div className="flex flex-col h-[70vh] border rounded p-4">
+            <div className="text-sm text-gray-500 mb-2">
+              Default agent: {nameFor(defaultAgentId)}
+            </div>
             <div className="flex-1 overflow-y-auto space-y-2" ref={containerRef}>
               {messages.map((m, idx) => (
                 <div key={idx} className="whitespace-pre-wrap">
@@ -101,18 +129,32 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex gap-2">
-              <input
-                className="flex-1 border rounded p-2"
+            <div className="mt-4 flex gap-2 items-end">
+              <textarea
+                className="flex-1 border rounded p-2 resize-none overflow-hidden"
                 value={input}
+                rows={1}
                 onChange={e => setInput(e.target.value)}
+                onInput={e => {
+                  e.currentTarget.style.height = 'auto'
+                  e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    void sendMessage()
+                  }
+                }}
                 placeholder="Type a message. Mention agents with @agentId"
               />
-              <button className="bg-blue-600 text-white px-4 rounded" onClick={sendMessage}>
+              <button className="bg-blue-600 text-white px-4 rounded h-full" onClick={sendMessage}>
                 Send
               </button>
-              <button className="bg-green-600 text-white px-4 rounded" onClick={saveConversation}>
+              <button className="bg-green-600 text-white px-4 rounded h-full" onClick={saveConversation}>
                 Save
+              </button>
+              <button className="bg-red-600 text-white px-4 rounded h-full" onClick={deleteConversation}>
+                Delete
               </button>
             </div>
           </div>

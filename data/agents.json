@@ -4,105 +4,125 @@
     "name": "Prompt Specialist",
     "purpose": "Refines venture questions into sharp, testable prompts",
     "inputType": "text",
-    "prompt": "You are the Prompt Specialist. Transform the venture idea below into a single clear question that can be used to test the concept."
+
+    "mdFile": "data/agents/prompt_specialist.md"
+
   },
   {
     "id": "ai_infuser",
     "name": "AI Infuser",
     "purpose": "Map how AI is applied across operations",
     "inputType": "text",
-    "prompt": "You are the AI Infuser. Outline a blueprint showing how AI can augment every operational level including toolkits, workflows and community-facing services based on the description below."
+
+    "mdFile": "data/agents/ai_infuser.md"
+
   },
   {
     "id": "market_signal_miner",
     "name": "Market Signal Miner",
     "purpose": "Surface weak signals and untapped demand",
     "inputType": "text",
-    "prompt": "You are the Market Signal Miner. Using the information provided, list emerging opportunities and unmet needs in the region. Present an opportunity map."
+
+    "mdFile": "data/agents/market_signal_miner.md"
+
   },
   {
     "id": "spark_scanner",
     "name": "Spark Scanner",
     "purpose": "Identify viable go-to-market entry points",
     "inputType": "text",
-    "prompt": "You are the Spark Scanner. For the sector described below, propose a sharp go-to-market wedge with example offerings."
+
+    "mdFile": "data/agents/spark_scanner.md"
+
   },
   {
     "id": "geo_matcher",
     "name": "Geo-Matcher",
     "purpose": "Evaluate country-level viability",
     "inputType": "text",
-    "prompt": "You are the Geo-Matcher. Assess the country's viability considering government traction, infrastructure, talent, capital and security. Provide a go/no-go decision and timing recommendation."
+
+    "mdFile": "data/agents/geo_matcher.md"
+
   },
   {
     "id": "behavioral_economist",
     "name": "Behavioral Economist",
     "purpose": "Model local founder psychology and adoption",
     "inputType": "text",
-    "prompt": "You are the Behavioral Economist. Based on the context below, create a trust-building onboarding plan and suggest any tool interface adjustments to increase adoption."
+    "mdFile": "data/agents/behavioral_economist.md"
+
   },
   {
     "id": "aig_deal_evaluator",
     "name": "AIG Deal Evaluator",
     "purpose": "Assess strategic model and exit options",
     "inputType": "text",
-    "prompt": "You are a venture analyst. Given the business summary below..."
+    "mdFile": "data/agents/aig_deal_evaluator.md"
+
   },
   {
     "id": "market_scope_analyst",
     "name": "Market Scope Analyst",
     "purpose": "Size the SOM, SAM and TAM for the opportunity",
     "inputType": "text",
-    "prompt": "You are the Market Scope Analyst. Build a concise market sizing model starting with Burundi and expanding regionally based on the information below."
+    "mdFile": "data/agents/market_scope_analyst.md"
+
   },
   {
     "id": "channel_choreographer",
     "name": "Channel Choreographer",
     "purpose": "Design acquisition and retention channels",
     "inputType": "text",
-    "prompt": "You are the Channel Choreographer. Describe low-CAC onboarding tactics, partnership pathways and referral loops for the initiative described below."
+    "mdFile": "data/agents/channel_choreographer.md"
+
   },
   {
     "id": "risk_cartographer",
     "name": "Risk Cartographer",
     "purpose": "Map political, operational and reputational risks",
     "inputType": "text",
-    "prompt": "You are the Risk Cartographer. Create a risk matrix for the scenario below and provide mitigation levers."
+    "mdFile": "data/agents/risk_cartographer.md"
+
+
   },
   {
     "id": "venture_forensics",
     "name": "Venture Forensics",
     "purpose": "Build the internal operations financial model",
     "inputType": "text",
-    "prompt": "You are the Venture Forensics agent. Using the assumptions below, calculate cost per founder, breakeven on services and subsidy multipliers."
+    "mdFile": "data/agents/venture_forensics.md"
+
   },
   {
     "id": "capital_architect",
     "name": "Capital Architect",
     "purpose": "Design the capital stack strategy",
     "inputType": "text",
-    "prompt": "You are the Capital Architect. Recommend a blend of grants, PPPs, diaspora equity and other financing aligned with the risk profile described below."
+    "mdFile": "data/agents/capital_architect.md"
+
   },
   {
     "id": "exit_synthesizer",
     "name": "Exit Synthesizer",
     "purpose": "Outline potential exit routes",
     "inputType": "text",
-    "prompt": "You are the Exit Synthesizer. Provide a framework of possible exits such as acqui-hire, licensing or government buyout with conditions and timelines."
+    "mdFile": "data/agents/exit_synthesizer.md"
+
   },
   {
     "id": "narrative_shaper",
     "name": "Narrative Shaper",
     "purpose": "Craft the story that sells to stakeholders",
     "inputType": "text",
-    "prompt": "You are the Narrative Shaper. Draft messaging and public framing that resonates with donors, governments and founders based on the outline below."
+    "mdFile": "data/agents/narrative_shaper.md"
+
   },
   {
     "id": "integrator",
     "name": "Integrator",
     "purpose": "Synthesize outputs from all agents",
     "inputType": "text",
-    "prompt": "You are the Integrator. Considering the information below, return a green, yellow or red light for each initiative and describe the learning loop."
+    "mdFile": "data/agents/integrator.md"
   }
 ]
 

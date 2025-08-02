@@ -67,27 +67,32 @@ export default function HomePage() {
     if (!id) return
     const name = prompt('Name?', id) || id
     const purpose = prompt('Purpose?') || ''
-    const promptText = prompt('Prompt?') || ''
-    const newAgent: AgentType = { id, name, purpose, inputType: 'text', prompt: promptText }
+    const mdFile = prompt('Markdown file path?', `data/agents/${id}.md`)?.trim()
+    if (!mdFile) return
+    const newAgent = { id, name, purpose, inputType: 'text', mdFile }
+
     await fetch('/api/agents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newAgent),
     })
-    setAgents(prev => [...prev, newAgent])
+    const created = await fetch(`/api/agents/${id}`).then(res => res.json())
+    setAgents(prev => [...prev, created])
+
   }
 
   const editAgent = async (agent: AgentType) => {
     const name = prompt('Name?', agent.name)
     if (!name) return
     const purpose = prompt('Purpose?', agent.purpose) || ''
-    const promptText = prompt('Prompt?', agent.prompt) || ''
-    const updated: AgentType = { ...agent, name, purpose, prompt: promptText }
+    const mdFile = prompt('Markdown file path?', agent.mdFile || '')?.trim()
     await fetch(`/api/agents/${agent.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updated),
+      body: JSON.stringify({ name, purpose, mdFile }),
     })
+    const updated = await fetch(`/api/agents/${agent.id}`).then(res => res.json())
+
     setAgents(prev => prev.map(a => (a.id === agent.id ? updated : a)))
   }
 

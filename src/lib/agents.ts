@@ -4,29 +4,45 @@ import type { AgentType } from '@/types/agent'
 
 const agentsFile = path.join(process.cwd(), 'data', 'agents.json')
 
-function readAgents(): AgentType[] {
+type AgentRecord = Omit<AgentType, 'prompt'> & { mdFile: string }
+
+function readAgents(): AgentRecord[] {
   try {
     const data = fs.readFileSync(agentsFile, 'utf8')
-    return JSON.parse(data) as AgentType[]
+    return JSON.parse(data) as AgentRecord[]
+
   } catch {
     return []
   }
 }
 
-function writeAgents(agents: AgentType[]) {
+function writeAgents(agents: AgentRecord[]) {
+
   fs.mkdirSync(path.dirname(agentsFile), { recursive: true })
   fs.writeFileSync(agentsFile, JSON.stringify(agents, null, 2))
 }
 
-export function getAgents() {
-  return readAgents()
+function loadPrompt(agent: AgentRecord): AgentType {
+  try {
+    const filePath = path.join(process.cwd(), agent.mdFile)
+    const prompt = fs.readFileSync(filePath, 'utf8')
+    return { ...agent, prompt }
+  } catch {
+    return { ...agent, prompt: '' }
+  }
 }
 
-export function getAgent(id: string) {
-  return readAgents().find(a => a.id === id)
+export function getAgents(): AgentType[] {
+  return readAgents().map(loadPrompt)
 }
 
-export function addAgent(agent: AgentType) {
+export function getAgent(id: string): AgentType | undefined {
+  const agent = readAgents().find(a => a.id === id)
+  return agent ? loadPrompt(agent) : undefined
+}
+
+export function addAgent(agent: AgentRecord) {
+
   const agents = readAgents()
   if (agents.some(a => a.id === agent.id)) {
     throw new Error('Agent already exists')
@@ -35,7 +51,8 @@ export function addAgent(agent: AgentType) {
   writeAgents(agents)
 }
 
-export function updateAgent(id: string, data: Partial<AgentType>) {
+export function updateAgent(id: string, data: Partial<AgentRecord>) {
+
   const agents = readAgents()
   const idx = agents.findIndex(a => a.id === id)
   if (idx === -1) {

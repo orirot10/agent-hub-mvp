@@ -111,6 +111,13 @@ export default function HomePage() {
     }
   }
 
+  const deleteConversation = () => {
+    setMessages([])
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('chat')
+    }
+  }
+
   const nameFor = (id: string) => (id === 'user' ? 'You' : agents.find(a => a.id === id)?.name || id)
 
   const renderContent = (text: string) =>
@@ -155,18 +162,32 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex gap-2">
-              <input
-                className="flex-1 border rounded p-2"
+            <div className="mt-4 flex gap-2 items-end">
+              <textarea
+                className="flex-1 border rounded p-2 resize-none overflow-hidden"
                 value={input}
+                rows={1}
                 onChange={e => setInput(e.target.value)}
+                onInput={e => {
+                  e.currentTarget.style.height = 'auto'
+                  e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault()
+                    void sendMessage()
+                  }
+                }}
                 placeholder="Type a message. Mention agents with @agentId"
               />
-              <button className="bg-blue-600 text-white px-4 rounded" onClick={sendMessage}>
+              <button className="bg-blue-600 text-white px-4 rounded h-full" onClick={sendMessage}>
                 Send
               </button>
-              <button className="bg-green-600 text-white px-4 rounded" onClick={saveConversation}>
+              <button className="bg-green-600 text-white px-4 rounded h-full" onClick={saveConversation}>
                 Save
+              </button>
+              <button className="bg-red-600 text-white px-4 rounded h-full" onClick={deleteConversation}>
+                Delete
               </button>
             </div>
           </div>

@@ -1,13 +1,23 @@
 
 import { useRouter } from 'next/router';
-import { agents } from "@/lib/agents";
+import { useEffect, useState } from 'react';
 import AgentModal from "@/components/AgentModal";
 import Layout from "@/components/Layout";
+import type { AgentType } from "@/types/agent";
 
 export default function AgentPage() {
   const router = useRouter();
   const { id } = router.query;
-  const agent = agents.find(a => a.id === id);
+  const [agent, setAgent] = useState<AgentType | null>(null);
+
+  useEffect(() => {
+    if (typeof id === 'string') {
+      fetch(`/api/agents/${id}`)
+        .then(res => res.json())
+        .then(setAgent)
+        .catch(() => setAgent(null));
+    }
+  }, [id]);
 
   if (!agent) return <Layout>Agent not found.</Layout>;
 

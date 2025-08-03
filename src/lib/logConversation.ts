@@ -27,6 +27,11 @@ export function createConversationId(): string {
   return uuidv4()
 }
 
+export type StoredConversation = {
+  timestamp: number
+  messages: Message[]
+}
+
 export function logConversation(
   conversationId: string,
   messages: Message[],
@@ -37,31 +42,46 @@ export function logConversation(
   if (!force && fs.existsSync(filePath)) {
     throw new Error('Conversation already exists')
   }
-  fs.writeFileSync(filePath, JSON.stringify(messages, null, 2))
+  const payload: StoredConversation = {
+    timestamp: Date.now(),
+    messages,
+  }
+  fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
 }
 
-export function readConversation(conversationId: string): Message[] | null {
+export function readConversation(
+  conversationId: string
+): StoredConversation | null {
   const filePath = path.join(conversationsDir, `${conversationId}.json`)
   if (!fs.existsSync(filePath)) return null
   try {
     const data = fs.readFileSync(filePath, 'utf8')
-    return JSON.parse(data)
+    const parsed = JSON.parse(data)
+    if (Array.isArray(parsed)) {
+      return { timestamp: 0, messages: parsed }
+    }
+    return parsed
   } catch {
     return null
   }
 }
 
-export function readConversations(): Record<string, Message[]> {
+export function readConversations(): Record<string, StoredConversation> {
   ensureDir()
-  const result: Record<string, Message[]> = {}
+  const result: Record<string, StoredConversation> = {}
   for (const file of fs.readdirSync(conversationsDir)) {
     if (!file.endsWith('.json')) continue
     const id = path.basename(file, '.json')
     try {
       const data = fs.readFileSync(path.join(conversationsDir, file), 'utf8')
-      result[id] = JSON.parse(data)
+      const parsed = JSON.parse(data)
+      if (Array.isArray(parsed)) {
+        result[id] = { timestamp: 0, messages: parsed }
+      } else {
+        result[id] = parsed
+      }
     } catch {
-      result[id] = []
+      result[id] = { timestamp: 0, messages: [] }
     }
   }
   return result

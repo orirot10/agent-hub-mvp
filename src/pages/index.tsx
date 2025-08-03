@@ -28,10 +28,12 @@ export default function HomePage() {
     sessionStorage.setItem('defaultAgentId', defaultAgentId)
   }, [defaultAgentId])
 
+
   const extractLastMention = (text: string) => {
     const ids = text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []
     const lastId = ids[ids.length - 1]
     return agents.find(a => a.id === lastId) || null
+
   }
 
   const sendMessage = async () => {
@@ -43,8 +45,10 @@ export default function HomePage() {
       timestamp: Date.now(),
     }
     setMessages(prev => [...prev, userMsg])
+
     const mentioned = extractLastMention(input)
     const target = mentioned || agents.find(a => a.id === defaultAgentId)!
+
     setInput('')
 
     const history = [...messages, userMsg].map(m => ({
@@ -63,6 +67,10 @@ export default function HomePage() {
 
     if (mentioned) {
       setDefaultAgentId(mentioned.id)
+    }
+
+    if (mentioned.length > 0) {
+      setDefaultAgentId(mentioned[mentioned.length - 1].id)
     }
   }
 

@@ -28,9 +28,12 @@ export default function HomePage() {
     sessionStorage.setItem('defaultAgentId', defaultAgentId)
   }, [defaultAgentId])
 
-  const extractMentions = (text: string) => {
-    const ids = Array.from(new Set(text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []))
-    return agents.filter(a => ids.includes(a.id))
+
+  const extractLastMention = (text: string) => {
+    const ids = text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []
+    const lastId = ids[ids.length - 1]
+    return agents.find(a => a.id === lastId) || null
+
   }
 
   const sendMessage = async () => {
@@ -42,27 +45,28 @@ export default function HomePage() {
       timestamp: Date.now(),
     }
     setMessages(prev => [...prev, userMsg])
-    const mentioned = extractMentions(input)
-    const targets =
-      mentioned.length > 0
-        ? mentioned
-        : agents.filter(a => a.id === defaultAgentId)
+
+    const mentioned = extractLastMention(input)
+    const target = mentioned || agents.find(a => a.id === defaultAgentId)!
+
     setInput('')
 
-    for (const agent of targets) {
-      const history = [...messages, userMsg].map(m => ({
-        role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.content,
-      }))
-      const system = { role: 'system', content: agent.prompt }
-      const result = await chatCompletion([system, ...history])
-      const agentMsg: ChatMessage = {
-        role: 'agent',
-        agentId: agent.id,
-        content: result,
-        timestamp: Date.now(),
-      }
-      setMessages(prev => [...prev, agentMsg])
+    const history = [...messages, userMsg].map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content,
+    }))
+    const system = { role: 'system', content: target.prompt }
+    const result = await chatCompletion([system, ...history])
+    const agentMsg: ChatMessage = {
+      role: 'agent',
+      agentId: target.id,
+      content: result,
+      timestamp: Date.now(),
+    }
+    setMessages(prev => [...prev, agentMsg])
+
+    if (mentioned) {
+      setDefaultAgentId(mentioned.id)
     }
 
     if (mentioned.length > 0) {
@@ -90,7 +94,6 @@ export default function HomePage() {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('chat')
       sessionStorage.removeItem('defaultAgentId')
-
     }
   }
 

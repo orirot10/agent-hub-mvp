@@ -1,5 +1,6 @@
 
 import { useEffect, useRef, useState } from "react"
+import { useRouter } from "next/router"
 import Layout from "@/components/Layout"
 import { chatCompletion } from "@/lib/openaiClient"
 import type { ChatMessage } from "@/types/chat"
@@ -21,6 +22,7 @@ export default function HomePage() {
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   useEffect(() => {
     sessionStorage.setItem('chat', JSON.stringify(messages))
@@ -99,19 +101,8 @@ export default function HomePage() {
 
   }
 
-  const editAgent = async (agent: AgentType) => {
-    const name = prompt('Name?', agent.name)
-    if (!name) return
-    const purpose = prompt('Purpose?', agent.purpose) || ''
-    const mdFile = prompt('Markdown file path?', agent.mdFile || '')?.trim()
-    await fetch(`/api/agents/${agent.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, purpose, mdFile }),
-    })
-    const updated = await fetch(`/api/agents/${agent.id}`).then(res => res.json())
-
-    setAgents(prev => prev.map(a => (a.id === agent.id ? updated : a)))
+  const editAgent = (agent: AgentType) => {
+    router.push(`/agent/${agent.id}/edit`)
   }
 
   const deleteAgent = async (id: string) => {

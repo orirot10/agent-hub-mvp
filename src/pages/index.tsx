@@ -16,9 +16,6 @@ export default function HomePage() {
     return saved ? JSON.parse(saved) : []
   })
 
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const [thinking, setThinking] = useState(false)
-
   const [defaultAgentId, setDefaultAgentId] = useState(() => {
     if (typeof window === 'undefined') return 'project_manager'
     return sessionStorage.getItem('defaultAgentId') || 'project_manager'
@@ -39,11 +36,6 @@ export default function HomePage() {
   useEffect(() => {
     sessionStorage.setItem('defaultAgentId', defaultAgentId)
   }, [defaultAgentId])
-
-  const showStatus = (msg: string) => {
-    setStatusMessage(msg)
-    setTimeout(() => setStatusMessage(null), 2000)
-  }
 
 
   const extractLastMention = (text: string) => {
@@ -69,28 +61,25 @@ export default function HomePage() {
 
     setInput('')
 
-    setThinking(true)
-    try {
-      const history = [...messages, userMsg].map(m => ({
-        role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.content,
-      }))
-      const system = { role: 'system', content: target.prompt }
-      const result = await chatCompletion([system, ...history])
-      const agentMsg: ChatMessage = {
-        role: 'agent',
-        agentId: target.id,
-        content: result,
-        timestamp: Date.now(),
-      }
-      setMessages(prev => [...prev, agentMsg])
-
-      if (mentioned) {
-        setDefaultAgentId(mentioned.id)
-      }
-    } finally {
-      setThinking(false)
+    const history = [...messages, userMsg].map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content,
+    }))
+    const system = { role: 'system', content: target.prompt }
+    const result = await chatCompletion([system, ...history])
+    const agentMsg: ChatMessage = {
+      role: 'agent',
+      agentId: target.id,
+      content: result,
+      timestamp: Date.now(),
     }
+    setMessages(prev => [...prev, agentMsg])
+
+    if (mentioned) {
+      setDefaultAgentId(mentioned.id)
+    }
+
+
   }
 
   const addAgent = async () => {
@@ -134,7 +123,6 @@ export default function HomePage() {
     } catch {
       // ignore
     }
-    showStatus('saved')
   }
 
   const deleteConversation = () => {
@@ -144,7 +132,6 @@ export default function HomePage() {
       sessionStorage.removeItem('chat')
       sessionStorage.removeItem('defaultAgentId')
     }
-    showStatus('deleted')
   }
 
   const nameFor = (id: string) => (id === 'user' ? 'You' : agents.find(a => a.id === id)?.name || id)
@@ -162,11 +149,6 @@ export default function HomePage() {
 
   return (
     <Layout>
-      {(statusMessage || thinking) && (
-        <div className="fixed top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded shadow">
-          {statusMessage || 'thinking'}
-        </div>
-      )}
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
           <button

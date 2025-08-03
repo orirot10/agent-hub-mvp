@@ -13,7 +13,12 @@ export default function HomePage() {
     const saved = sessionStorage.getItem('chat')
     return saved ? JSON.parse(saved) : []
   })
-  const [agents, setAgents] = useState<AgentType[]>([])
+
+  const [defaultAgentId, setDefaultAgentId] = useState(() => {
+    if (typeof window === 'undefined') return 'prompt_specialist'
+    return sessionStorage.getItem('defaultAgentId') || 'prompt_specialist'
+  })
+
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -22,15 +27,17 @@ export default function HomePage() {
   }, [messages])
 
   useEffect(() => {
-    fetch('/api/agents')
-      .then(res => res.json())
-      .then(setAgents)
-      .catch(() => setAgents([]))
-  }, [])
 
-  const extractMentions = (text: string) => {
-    const ids = Array.from(new Set(text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []))
-    return agents.filter(a => ids.includes(a.id))
+    sessionStorage.setItem('defaultAgentId', defaultAgentId)
+  }, [defaultAgentId])
+
+
+  const extractLastMention = (text: string) => {
+    const ids = text.match(/@([\w-]+)/g)?.map(m => m.slice(1)) || []
+    const lastId = ids[ids.length - 1]
+    return agents.find(a => a.id === lastId) || null
+
+
   }
 
   const sendMessage = async () => {
@@ -42,23 +49,32 @@ export default function HomePage() {
       timestamp: Date.now(),
     }
     setMessages(prev => [...prev, userMsg])
-    const targets = extractMentions(input)
+
+    const mentioned = extractLastMention(input)
+    const target = mentioned || agents.find(a => a.id === defaultAgentId)!
+
     setInput('')
 
-    for (const agent of targets) {
-      const history = [...messages, userMsg].map(m => ({
-        role: m.role === 'user' ? 'user' : 'assistant',
-        content: m.content,
-      }))
-      const system = { role: 'system', content: agent.prompt }
-      const result = await chatCompletion([system, ...history])
-      const agentMsg: ChatMessage = {
-        role: 'agent',
-        agentId: agent.id,
-        content: result,
-        timestamp: Date.now(),
-      }
-      setMessages(prev => [...prev, agentMsg])
+    const history = [...messages, userMsg].map(m => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content,
+    }))
+    const system = { role: 'system', content: target.prompt }
+    const result = await chatCompletion([system, ...history])
+    const agentMsg: ChatMessage = {
+      role: 'agent',
+      agentId: target.id,
+      content: result,
+      timestamp: Date.now(),
+    }
+    setMessages(prev => [...prev, agentMsg])
+
+    if (mentioned) {
+      setDefaultAgentId(mentioned.id)
+    }
+
+    if (mentioned.length > 0) {
+      setDefaultAgentId(mentioned[mentioned.length - 1].id)
     }
   }
 
@@ -118,8 +134,10 @@ export default function HomePage() {
 
   const deleteConversation = () => {
     setMessages([])
+    setDefaultAgentId('prompt_specialist')
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('chat')
+      sessionStorage.removeItem('defaultAgentId')
     }
   }
 
@@ -159,6 +177,9 @@ export default function HomePage() {
         </div>
         <div className="md:col-span-1">
           <div className="flex flex-col h-[70vh] border rounded p-4">
+            <div className="text-sm text-gray-500 mb-2">
+              Default agent: {nameFor(defaultAgentId)}
+            </div>
             <div className="flex-1 overflow-y-auto space-y-2" ref={containerRef}>
               {messages.map((m, idx) => (
                 <div key={idx} className="whitespace-pre-wrap">

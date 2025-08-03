@@ -51,15 +51,27 @@ export function addAgent(agent: AgentRecord) {
   writeAgents(agents)
 }
 
-export function updateAgent(id: string, data: Partial<AgentRecord>) {
+export function updateAgent(id: string, data: Partial<AgentRecord> & { prompt?: string }) {
 
   const agents = readAgents()
   const idx = agents.findIndex(a => a.id === id)
   if (idx === -1) {
     throw new Error('Agent not found')
   }
-  agents[idx] = { ...agents[idx], ...data }
+
+  const { prompt, ...rest } = data
+
+  if (rest.id && rest.id !== id && agents.some(a => a.id === rest.id)) {
+    throw new Error('Agent already exists')
+  }
+
+  agents[idx] = { ...agents[idx], ...rest }
   writeAgents(agents)
+
+  if (prompt !== undefined) {
+    const filePath = path.join(process.cwd(), agents[idx].mdFile)
+    fs.writeFileSync(filePath, prompt)
+  }
 }
 
 export function deleteAgent(id: string) {

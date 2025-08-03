@@ -12,8 +12,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'PUT') {
     try {
-      updateAgent(id, req.body)
-      return res.status(200).json({ ok: true })
+      const updated = updateAgent(id, req.body)
+      return res.status(200).json(updated)
     } catch (err: any) {
       return res.status(400).json({ error: err.message })
     }

@@ -1,9 +1,9 @@
-# AI Infuser
+# Creative Specialist
 
-**ID:** `ai_infuser`
+**ID:** `creative_specialist`
 
 ## 🎯 Purpose
-Maps how AI can enhance or automate internal operations and business workflows.
+Enhances visual and brand expression, ensuring storytelling is compelling across design, UI, and content.
 
 ## 🧩 Core Functions
 - To be customized per deployment.

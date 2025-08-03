@@ -1,9 +1,9 @@
-# AI Infuser
+# Project Manager
 
-**ID:** `ai_infuser`
+**ID:** `project_manager`
 
 ## 🎯 Purpose
-Maps how AI can enhance or automate internal operations and business workflows.
+Manages timelines, milestones, and resource allocation across all agent tasks. Tracks progress and resolves workflow bottlenecks.
 
 ## 🧩 Core Functions
 - To be customized per deployment.

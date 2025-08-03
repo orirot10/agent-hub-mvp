@@ -20,8 +20,8 @@ export default function HomePage() {
   const [thinking, setThinking] = useState(false)
 
   const [defaultAgentId, setDefaultAgentId] = useState(() => {
-    if (typeof window === 'undefined') return 'prompt_specialist'
-    return sessionStorage.getItem('defaultAgentId') || 'prompt_specialist'
+    if (typeof window === 'undefined') return 'project_manager'
+    return sessionStorage.getItem('defaultAgentId') || 'project_manager'
   })
 
   const containerRef = useRef<HTMLDivElement>(null)

@@ -1,5 +1,26 @@
-[
-  {
+# Agent Manager
+
+**ID:** `agent_manager`
+
+## 🎯 Purpose
+Oversees and coordinates all agents, routes tasks, ensures quality, and delivers cohesive strategic outputs.
+
+## 🧩 Core Functions
+- To be customized per deployment.
+- Integrates with other agents via Orchestrator or Agent Manager.
+- Handles structured and unstructured queries in its domain.
+
+## 📝 Input Type
+Text / Context-specific data
+
+## 📤 Output
+Markdown summary, structured data, or action plan
+
+## 🤝 Collaborates With
+Other agents as needed based on task flow
+other agents:
+
+ {
     "id": "agent_manager",
     "name": "Agent Manager",
     "purpose": "Oversees and coordinates all agents, routes tasks, ensures quality, and delivers cohesive strategic outputs.",
@@ -118,4 +139,4 @@
     "inputType": "all agent outputs",
     "mdFile": "data/agents/integrator.md"
   }
-]
+---

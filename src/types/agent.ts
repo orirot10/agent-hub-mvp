@@ -5,6 +5,7 @@ export type AgentType = {
   purpose: string;
   inputType: 'text';
   prompt: string;
+  mdFile?: string;
 };
 
 export type ScoreType = {

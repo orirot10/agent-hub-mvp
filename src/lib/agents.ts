@@ -1,110 +1,81 @@
+import fs from 'fs'
+import path from 'path'
+import type { AgentType } from '@/types/agent'
 
-import { AgentType } from "@/types/agent";
+const agentsFile = path.join(process.cwd(), 'data', 'agents.json')
 
-export const agents: AgentType[] = [
-  {
-    id: "prompt_specialist",
-    name: "Prompt Specialist",
-    purpose: "Refines venture questions into sharp, testable prompts",
-    inputType: "text",
-    prompt: `You are the Prompt Specialist. Transform the venture idea below into a single clear question that can be used to test the concept.`,
-  },
-  {
-    id: "ai_infuser",
-    name: "AI Infuser",
-    purpose: "Map how AI is applied across operations",
-    inputType: "text",
-    prompt: `You are the AI Infuser. Outline a blueprint showing how AI can augment every operational level including toolkits, workflows and community-facing services based on the description below.`,
-  },
-  {
-    id: "market_signal_miner",
-    name: "Market Signal Miner",
-    purpose: "Surface weak signals and untapped demand",
-    inputType: "text",
-    prompt: `You are the Market Signal Miner. Using the information provided, list emerging opportunities and unmet needs in the region. Present an opportunity map.`,
-  },
-  {
-    id: "spark_scanner",
-    name: "Spark Scanner",
-    purpose: "Identify viable go-to-market entry points",
-    inputType: "text",
-    prompt: `You are the Spark Scanner. For the sector described below, propose a sharp go-to-market wedge with example offerings.`,
-  },
-  {
-    id: "geo_matcher",
-    name: "Geo-Matcher",
-    purpose: "Evaluate country-level viability",
-    inputType: "text",
-    prompt: `You are the Geo-Matcher. Assess the country's viability considering government traction, infrastructure, talent, capital and security. Provide a go/no-go decision and timing recommendation.`,
-  },
-  {
-    id: "behavioral_economist",
-    name: "Behavioral Economist",
-    purpose: "Model local founder psychology and adoption",
-    inputType: "text",
-    prompt: `You are the Behavioral Economist. Based on the context below, create a trust-building onboarding plan and suggest any tool interface adjustments to increase adoption.`,
-  },
-  {
-    id: "aig_deal_evaluator",
-    name: "AIG Deal Evaluator",
-    purpose: "Assess strategic model and exit options",
-    inputType: "text",
-    prompt: `You are a venture analyst. Given the business summary below...`,
-  },
-  {
-    id: "market_scope_analyst",
-    name: "Market Scope Analyst",
-    purpose: "Size the SOM, SAM and TAM for the opportunity",
-    inputType: "text",
-    prompt: `You are the Market Scope Analyst. Build a concise market sizing model starting with Burundi and expanding regionally based on the information below.`,
-  },
-  {
-    id: "channel_choreographer",
-    name: "Channel Choreographer",
-    purpose: "Design acquisition and retention channels",
-    inputType: "text",
-    prompt: `You are the Channel Choreographer. Describe low-CAC onboarding tactics, partnership pathways and referral loops for the initiative described below.`,
-  },
-  {
-    id: "risk_cartographer",
-    name: "Risk Cartographer",
-    purpose: "Map political, operational and reputational risks",
-    inputType: "text",
-    prompt: `You are the Risk Cartographer. Create a risk matrix for the scenario below and provide mitigation levers.`,
-  },
-  {
-    id: "venture_forensics",
-    name: "Venture Forensics",
-    purpose: "Build the internal operations financial model",
-    inputType: "text",
-    prompt: `You are the Venture Forensics agent. Using the assumptions below, calculate cost per founder, breakeven on services and subsidy multipliers.`,
-  },
-  {
-    id: "capital_architect",
-    name: "Capital Architect",
-    purpose: "Design the capital stack strategy",
-    inputType: "text",
-    prompt: `You are the Capital Architect. Recommend a blend of grants, PPPs, diaspora equity and other financing aligned with the risk profile described below.`,
-  },
-  {
-    id: "exit_synthesizer",
-    name: "Exit Synthesizer",
-    purpose: "Outline potential exit routes",
-    inputType: "text",
-    prompt: `You are the Exit Synthesizer. Provide a framework of possible exits such as acqui-hire, licensing or government buyout with conditions and timelines.`,
-  },
-  {
-    id: "narrative_shaper",
-    name: "Narrative Shaper",
-    purpose: "Craft the story that sells to stakeholders",
-    inputType: "text",
-    prompt: `You are the Narrative Shaper. Draft messaging and public framing that resonates with donors, governments and founders based on the outline below.`,
-  },
-  {
-    id: "integrator",
-    name: "Integrator",
-    purpose: "Synthesize outputs from all agents",
-    inputType: "text",
-    prompt: `You are the Integrator. Considering the information below, return a green, yellow or red light for each initiative and describe the learning loop.`,
-  },
-];
+type AgentRecord = Omit<AgentType, 'prompt'> & { mdFile: string }
+
+function readAgents(): AgentRecord[] {
+  try {
+    const data = fs.readFileSync(agentsFile, 'utf8')
+    return JSON.parse(data) as AgentRecord[]
+  } catch {
+    return []
+  }
+}
+
+function writeAgents(agents: AgentRecord[]) {
+  fs.mkdirSync(path.dirname(agentsFile), { recursive: true })
+  fs.writeFileSync(agentsFile, JSON.stringify(agents, null, 2))
+}
+
+function loadPrompt(agent: AgentRecord): AgentType {
+  try {
+    const filePath = path.join(process.cwd(), agent.mdFile)
+    const prompt = fs.readFileSync(filePath, 'utf8')
+    return { ...agent, prompt }
+  } catch {
+    return { ...agent, prompt: '' }
+  }
+}
+
+export function getAgents(): AgentType[] {
+  return readAgents().map(loadPrompt)
+}
+
+export function getAgent(id: string): AgentType | undefined {
+  const agent = readAgents().find(a => a.id === id)
+  return agent ? loadPrompt(agent) : undefined
+}
+
+export function addAgent(agent: AgentRecord & { prompt: string }) {
+  const agents = readAgents()
+  if (agents.some(a => a.id === agent.id)) {
+    throw new Error('Agent already exists')
+  }
+  const { prompt, ...record } = agent
+  const filePath = path.join(process.cwd(), record.mdFile)
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  fs.writeFileSync(filePath, prompt, 'utf8')
+  agents.push(record)
+  writeAgents(agents)
+}
+
+export function updateAgent(id: string, data: Partial<AgentRecord> & { prompt?: string }): AgentType {
+  const agents = readAgents()
+  const idx = agents.findIndex(a => a.id === id)
+  if (idx === -1) {
+    throw new Error('Agent not found')
+  }
+  const newId = data.id && data.id !== id ? data.id : id
+  if (newId !== id && agents.some(a => a.id === newId)) {
+    throw new Error('Agent already exists')
+  }
+  const { prompt, ...rest } = data
+  const updated: AgentRecord = { ...agents[idx], ...rest, id: newId }
+  agents[idx] = updated
+  writeAgents(agents)
+  if (typeof prompt === 'string') {
+    const filePath = path.join(process.cwd(), updated.mdFile)
+    fs.mkdirSync(path.dirname(filePath), { recursive: true })
+    fs.writeFileSync(filePath, prompt, 'utf8')
+  }
+  return loadPrompt(updated)
+}
+
+export function deleteAgent(id: string) {
+  const agents = readAgents().filter(a => a.id !== id)
+  writeAgents(agents)
+}
+

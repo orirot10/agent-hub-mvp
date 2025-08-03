@@ -7,6 +7,7 @@ import type { AgentType } from "@/types/agent"
 import AgentCard from "@/components/AgentCard"
 
 export default function HomePage() {
+  const [agents, setAgents] = useState<AgentType[]>([])
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window === 'undefined') return []
@@ -27,7 +28,10 @@ export default function HomePage() {
   }, [messages])
 
   useEffect(() => {
+    fetch('/api/agents').then(res => res.json()).then(setAgents)
+  }, [])
 
+  useEffect(() => {
     sessionStorage.setItem('defaultAgentId', defaultAgentId)
   }, [defaultAgentId])
 
@@ -73,9 +77,7 @@ export default function HomePage() {
       setDefaultAgentId(mentioned.id)
     }
 
-    if (mentioned.length > 0) {
-      setDefaultAgentId(mentioned[mentioned.length - 1].id)
-    }
+
   }
 
   const addAgent = async () => {

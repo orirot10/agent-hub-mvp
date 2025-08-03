@@ -4,45 +4,35 @@
     "name": "Prompt Specialist",
     "purpose": "Refines venture questions into sharp, testable prompts",
     "inputType": "text",
-
     "mdFile": "data/agents/prompt_specialist.md"
-
   },
   {
     "id": "ai_infuser",
     "name": "AI Infuser",
     "purpose": "Map how AI is applied across operations",
     "inputType": "text",
-
     "mdFile": "data/agents/ai_infuser.md"
-
   },
   {
     "id": "market_signal_miner",
     "name": "Market Signal Miner",
     "purpose": "Surface weak signals and untapped demand",
     "inputType": "text",
-
     "mdFile": "data/agents/market_signal_miner.md"
-
   },
   {
     "id": "spark_scanner",
     "name": "Spark Scanner",
     "purpose": "Identify viable go-to-market entry points",
     "inputType": "text",
-
     "mdFile": "data/agents/spark_scanner.md"
-
   },
   {
     "id": "geo_matcher",
     "name": "Geo-Matcher",
     "purpose": "Evaluate country-level viability",
     "inputType": "text",
-
     "mdFile": "data/agents/geo_matcher.md"
-
   },
   {
     "id": "behavioral_economist",
@@ -50,7 +40,6 @@
     "purpose": "Model local founder psychology and adoption",
     "inputType": "text",
     "mdFile": "data/agents/behavioral_economist.md"
-
   },
   {
     "id": "aig_deal_evaluator",
@@ -58,7 +47,6 @@
     "purpose": "Assess strategic model and exit options",
     "inputType": "text",
     "mdFile": "data/agents/aig_deal_evaluator.md"
-
   },
   {
     "id": "market_scope_analyst",
@@ -66,7 +54,6 @@
     "purpose": "Size the SOM, SAM and TAM for the opportunity",
     "inputType": "text",
     "mdFile": "data/agents/market_scope_analyst.md"
-
   },
   {
     "id": "channel_choreographer",
@@ -74,7 +61,6 @@
     "purpose": "Design acquisition and retention channels",
     "inputType": "text",
     "mdFile": "data/agents/channel_choreographer.md"
-
   },
   {
     "id": "risk_cartographer",
@@ -82,8 +68,6 @@
     "purpose": "Map political, operational and reputational risks",
     "inputType": "text",
     "mdFile": "data/agents/risk_cartographer.md"
-
-
   },
   {
     "id": "venture_forensics",
@@ -91,7 +75,6 @@
     "purpose": "Build the internal operations financial model",
     "inputType": "text",
     "mdFile": "data/agents/venture_forensics.md"
-
   },
   {
     "id": "capital_architect",
@@ -99,7 +82,6 @@
     "purpose": "Design the capital stack strategy",
     "inputType": "text",
     "mdFile": "data/agents/capital_architect.md"
-
   },
   {
     "id": "exit_synthesizer",
@@ -107,7 +89,6 @@
     "purpose": "Outline potential exit routes",
     "inputType": "text",
     "mdFile": "data/agents/exit_synthesizer.md"
-
   },
   {
     "id": "narrative_shaper",
@@ -115,7 +96,6 @@
     "purpose": "Craft the story that sells to stakeholders",
     "inputType": "text",
     "mdFile": "data/agents/narrative_shaper.md"
-
   },
   {
     "id": "integrator",
@@ -125,4 +105,3 @@
     "mdFile": "data/agents/integrator.md"
   }
 ]
-

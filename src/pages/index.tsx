@@ -6,6 +6,7 @@ import { chatCompletion } from "@/lib/openaiClient"
 import type { ChatMessage } from "@/types/chat"
 import type { AgentType } from "@/types/agent"
 import AgentCard from "@/components/AgentCard"
+import { v4 as uuidv4 } from 'uuid'
 
 export default function HomePage() {
   const [agents, setAgents] = useState<AgentType[]>([])
@@ -19,6 +20,11 @@ export default function HomePage() {
   const [defaultAgentId, setDefaultAgentId] = useState(() => {
     if (typeof window === 'undefined') return 'project_manager'
     return sessionStorage.getItem('defaultAgentId') || 'project_manager'
+  })
+
+  const [conversationId, setConversationId] = useState(() => {
+    if (typeof window === 'undefined') return uuidv4()
+    return sessionStorage.getItem('conversationId') || uuidv4()
   })
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -36,6 +42,26 @@ export default function HomePage() {
   useEffect(() => {
     sessionStorage.setItem('defaultAgentId', defaultAgentId)
   }, [defaultAgentId])
+
+  useEffect(() => {
+    sessionStorage.setItem('conversationId', conversationId)
+  }, [conversationId])
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const id = router.query.conversationId
+    if (typeof id === 'string') {
+      fetch(`/api/log/${id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setMessages(data.messages || [])
+            setConversationId(id)
+          }
+        })
+        .catch(() => {})
+    }
+  }, [router.isReady, router.query.conversationId])
 
 
   const extractLastMention = (text: string) => {
@@ -113,12 +139,11 @@ export default function HomePage() {
 
   const saveConversation = async () => {
     if (messages.length === 0) return
-    const conversationId = crypto.randomUUID()
     try {
       await fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId, messages }),
+        body: JSON.stringify({ conversationId, messages, force: true }),
       })
     } catch {
       // ignore
@@ -128,9 +153,12 @@ export default function HomePage() {
   const deleteConversation = () => {
     setMessages([])
     setDefaultAgentId('prompt_specialist')
+    const newId = uuidv4()
+    setConversationId(newId)
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('chat')
       sessionStorage.removeItem('defaultAgentId')
+      sessionStorage.setItem('conversationId', newId)
     }
   }
 

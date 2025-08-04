@@ -143,8 +143,15 @@ export default function HomePage() {
       await fetch('/api/log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId, messages, force: true }),
+        body: JSON.stringify({ conversationId, messages }),
       })
+      const newId = uuidv4()
+      setMessages([])
+      setConversationId(newId)
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('chat')
+        sessionStorage.setItem('conversationId', newId)
+      }
     } catch {
       // ignore
     }

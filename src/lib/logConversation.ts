@@ -68,7 +68,7 @@ export function readConversation(
 
 export function readConversations(): Record<string, StoredConversation> {
   ensureDir()
-  const result: Record<string, StoredConversation> = {}
+  const entries: [string, StoredConversation][] = []
   for (const file of fs.readdirSync(conversationsDir)) {
     if (!file.endsWith('.json')) continue
     const id = path.basename(file, '.json')
@@ -76,15 +76,16 @@ export function readConversations(): Record<string, StoredConversation> {
       const data = fs.readFileSync(path.join(conversationsDir, file), 'utf8')
       const parsed = JSON.parse(data)
       if (Array.isArray(parsed)) {
-        result[id] = { timestamp: 0, messages: parsed }
+        entries.push([id, { timestamp: 0, messages: parsed }])
       } else {
-        result[id] = parsed
+        entries.push([id, parsed])
       }
     } catch {
-      result[id] = { timestamp: 0, messages: [] }
+      entries.push([id, { timestamp: 0, messages: [] }])
     }
   }
-  return result
+  entries.sort((a, b) => b[1].timestamp - a[1].timestamp)
+  return Object.fromEntries(entries)
 }
 
 export function appendConversation(entry: ConversationEntry) {

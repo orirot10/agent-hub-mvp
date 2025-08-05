@@ -184,15 +184,15 @@ export default function HomePage() {
 
   return (
     <Layout>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
+      <div className="grid md:grid-cols-4 gap-4">
+        <div className="md:col-span-1 space-y-3">
           <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm w-full"
             onClick={addAgent}
           >
             Add Agent
           </button>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
             {agents.map(agent => (
               <AgentCard
                 key={agent.id}
@@ -203,8 +203,8 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-        <div className="md:col-span-1">
-          <div className="flex flex-col h-[70vh] border rounded p-4">
+        <div className="md:col-span-3">
+          <div className="flex flex-col h-[85vh] border rounded p-4">
             <div className="text-sm text-gray-500 mb-2">
               Default agent: {nameFor(defaultAgentId)}
             </div>

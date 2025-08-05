@@ -35,16 +35,25 @@ export type StoredConversation = {
 export function logConversation(
   conversationId: string,
   messages: Message[],
-  force = false
+  _force = false
 ) {
   ensureDir()
   const filePath = path.join(conversationsDir, `${conversationId}.json`)
-  if (!force && fs.existsSync(filePath)) {
-    throw new Error('Conversation already exists')
+  let existing: Message[] = []
+  if (fs.existsSync(filePath)) {
+    try {
+      const data = fs.readFileSync(filePath, 'utf8')
+      const parsed = JSON.parse(data)
+      existing = Array.isArray(parsed) ? parsed : parsed.messages || []
+    } catch {
+      existing = []
+    }
   }
+  const startIndex = existing.length
+  const merged = [...existing, ...messages.slice(startIndex)]
   const payload: StoredConversation = {
     timestamp: Date.now(),
-    messages,
+    messages: merged,
   }
   fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
 }

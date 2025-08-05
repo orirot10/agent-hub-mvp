@@ -80,7 +80,6 @@ export default function HomePage() {
       content: input.trim(),
       timestamp: Date.now(),
     }
-    setMessages(prev => [...prev, userMsg])
 
     const mentioned = extractLastMention(input)
     const target = mentioned || agents.find(a => a.id === defaultAgentId)!
@@ -92,17 +91,30 @@ export default function HomePage() {
       content: m.content,
     }))
     const system = { role: 'system', content: target.prompt }
-    const result = await chatCompletion([system, ...history])
-    const agentMsg: ChatMessage = {
+
+    const placeholder: ChatMessage = {
       role: 'agent',
       agentId: target.id,
-      content: result,
+      content: 'Thinking...',
       timestamp: Date.now(),
     }
-    setMessages(prev => [...prev, agentMsg])
 
-    if (mentioned) {
-      setDefaultAgentId(mentioned.id)
+    setMessages(prev => [...prev, userMsg, placeholder])
+
+    try {
+      const result = await chatCompletion([system, ...history])
+      const agentMsg: ChatMessage = {
+        role: 'agent',
+        agentId: target.id,
+        content: result,
+        timestamp: Date.now(),
+      }
+      setMessages(prev => [...prev.slice(0, -1), agentMsg])
+      if (mentioned) {
+        setDefaultAgentId(mentioned.id)
+      }
+    } catch {
+      setMessages(prev => prev.slice(0, -1))
     }
 
 

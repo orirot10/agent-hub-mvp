@@ -35,16 +35,25 @@ export type StoredConversation = {
 export function logConversation(
   conversationId: string,
   messages: Message[],
-  force = false
+  _force = false
 ) {
   ensureDir()
   const filePath = path.join(conversationsDir, `${conversationId}.json`)
-  if (!force && fs.existsSync(filePath)) {
-    throw new Error('Conversation already exists')
+  let existing: Message[] = []
+  if (fs.existsSync(filePath)) {
+    try {
+      const data = fs.readFileSync(filePath, 'utf8')
+      const parsed = JSON.parse(data)
+      existing = Array.isArray(parsed) ? parsed : parsed.messages || []
+    } catch {
+      existing = []
+    }
   }
+  const startIndex = existing.length
+  const merged = [...existing, ...messages.slice(startIndex)]
   const payload: StoredConversation = {
     timestamp: Date.now(),
-    messages,
+    messages: merged,
   }
   fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
 }
@@ -68,7 +77,7 @@ export function readConversation(
 
 export function readConversations(): Record<string, StoredConversation> {
   ensureDir()
-  const result: Record<string, StoredConversation> = {}
+  const entries: [string, StoredConversation][] = []
   for (const file of fs.readdirSync(conversationsDir)) {
     if (!file.endsWith('.json')) continue
     const id = path.basename(file, '.json')
@@ -76,15 +85,16 @@ export function readConversations(): Record<string, StoredConversation> {
       const data = fs.readFileSync(path.join(conversationsDir, file), 'utf8')
       const parsed = JSON.parse(data)
       if (Array.isArray(parsed)) {
-        result[id] = { timestamp: 0, messages: parsed }
+        entries.push([id, { timestamp: 0, messages: parsed }])
       } else {
-        result[id] = parsed
+        entries.push([id, parsed])
       }
     } catch {
-      result[id] = { timestamp: 0, messages: [] }
+      entries.push([id, { timestamp: 0, messages: [] }])
     }
   }
-  return result
+  entries.sort((a, b) => b[1].timestamp - a[1].timestamp)
+  return Object.fromEntries(entries)
 }
 
 export function appendConversation(entry: ConversationEntry) {

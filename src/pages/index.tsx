@@ -14,7 +14,14 @@ export default function HomePage() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (typeof window === 'undefined') return []
     const saved = sessionStorage.getItem('chat')
-    return saved ? JSON.parse(saved) : []
+    try {
+      const parsed = saved ? JSON.parse(saved) : []
+      return Array.isArray(parsed)
+        ? parsed.filter(m => m && typeof m.content === 'string')
+        : []
+    } catch {
+      return []
+    }
   })
 
   const [defaultAgentId, setDefaultAgentId] = useState(() => {
@@ -52,10 +59,13 @@ export default function HomePage() {
     const id = router.query.conversationId
     if (typeof id === 'string') {
       fetch(`/api/log/${id}`)
-        .then(res => res.ok ? res.json() : null)
+        .then(res => (res.ok ? res.json() : null))
         .then(data => {
-          if (data) {
-            setMessages(data.messages || [])
+          if (data && Array.isArray(data.messages)) {
+            const valid = data.messages.filter(
+              (m: any) => m && typeof m.content === 'string'
+            )
+            setMessages(valid)
             setConversationId(id)
           }
         })
@@ -183,8 +193,8 @@ export default function HomePage() {
 
   const nameFor = (id: string) => (id === 'user' ? 'You' : agents.find(a => a.id === id)?.name || id)
 
-  const renderContent = (text: string) =>
-    text.split(/(@[\w-]+)/g).map((part, i) =>
+  const renderContent = (text?: string) =>
+    (typeof text === 'string' ? text.split(/(@[\w-]+)/g) : []).map((part, i) =>
       part.startsWith('@') ? (
         <span key={i}>
           @<span className="text-blue-600">{part.slice(1)}</span>

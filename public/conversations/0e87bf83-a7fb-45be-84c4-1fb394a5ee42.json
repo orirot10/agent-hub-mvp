@@ -1,0 +1,17 @@
+{
+  "timestamp": 1754597690672,
+  "messages": [
+    {
+      "role": "user",
+      "agentId": "user",
+      "content": "return \"hi\"",
+      "timestamp": 1754597685570
+    },
+    {
+      "role": "agent",
+      "agentId": "project_manager",
+      "content": "hi",
+      "timestamp": 1754597686743
+    }
+  ]
+}

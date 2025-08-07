@@ -1,6 +1,9 @@
 import fs from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
+import dbConnect from './mongodb'
+// @ts-ignore - using CommonJS model
+import Conversation from '../../models/Conversation'
 
 export type Message = {
   role: 'user' | 'agent'
@@ -32,30 +35,56 @@ export type StoredConversation = {
   messages: Message[]
 }
 
-export function logConversation(
+export async function logConversation(
   conversationId: string,
   messages: Message[],
   _force = false
 ) {
-  ensureDir()
-  const filePath = path.join(conversationsDir, `${conversationId}.json`)
-  let existing: Message[] = []
-  if (fs.existsSync(filePath)) {
-    try {
-      const data = fs.readFileSync(filePath, 'utf8')
-      const parsed = JSON.parse(data)
-      existing = Array.isArray(parsed) ? parsed : parsed.messages || []
-    } catch {
-      existing = []
+  try {
+    await dbConnect()
+    
+    // Save to MongoDB
+    const lastMessage = messages[messages.length - 1]
+    if (lastMessage) {
+      await Conversation.create({
+        userId: conversationId,
+        type: 'log',
+        title: `Conversation ${conversationId.slice(0, 8)}`,
+        content: JSON.stringify(messages)
+      })
     }
+    
+    // Also save to local file as backup
+    ensureDir()
+    const filePath = path.join(conversationsDir, `${conversationId}.json`)
+    let existing: Message[] = []
+    if (fs.existsSync(filePath)) {
+      try {
+        const data = fs.readFileSync(filePath, 'utf8')
+        const parsed = JSON.parse(data)
+        existing = Array.isArray(parsed) ? parsed : parsed.messages || []
+      } catch {
+        existing = []
+      }
+    }
+    const startIndex = existing.length
+    const merged = [...existing, ...messages.slice(startIndex)]
+    const payload: StoredConversation = {
+      timestamp: Date.now(),
+      messages: merged,
+    }
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
+  } catch (error) {
+    console.error('Error saving conversation:', error)
+    // Fallback to file system only
+    ensureDir()
+    const filePath = path.join(conversationsDir, `${conversationId}.json`)
+    const payload: StoredConversation = {
+      timestamp: Date.now(),
+      messages,
+    }
+    fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
   }
-  const startIndex = existing.length
-  const merged = [...existing, ...messages.slice(startIndex)]
-  const payload: StoredConversation = {
-    timestamp: Date.now(),
-    messages: merged,
-  }
-  fs.writeFileSync(filePath, JSON.stringify(payload, null, 2))
 }
 
 export function readConversation(

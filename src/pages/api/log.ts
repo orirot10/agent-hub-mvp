@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid payload' })
     }
     
-    logConversation(conversationId, messages as Message[], force)
+    await logConversation(conversationId, messages as Message[], force)
     res.status(200).json({ ok: true })
   } catch (err: any) {
     console.error('Log conversation error:', err)

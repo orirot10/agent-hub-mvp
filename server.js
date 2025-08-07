@@ -12,6 +12,7 @@ app.use(express.json());
 
 mongoose
   .connect(process.env.MONGO_URI, {
+    dbName: 'GWG',
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

@@ -43,7 +43,16 @@ export default function HomePage() {
   }, [messages])
 
   useEffect(() => {
-    fetch('/api/agents').then(res => res.json()).then(setAgents)
+    fetch('/api/agents')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        return res.json()
+      })
+      .then(setAgents)
+      .catch(err => {
+        console.error('Failed to load agents:', err)
+        setAgents([])
+      })
   }, [])
 
   useEffect(() => {
@@ -123,8 +132,15 @@ export default function HomePage() {
       if (mentioned) {
         setDefaultAgentId(mentioned.id)
       }
-    } catch {
-      setMessages(prev => prev.slice(0, -1))
+    } catch (err) {
+      console.error('Chat completion failed:', err)
+      const errorMsg: ChatMessage = {
+        role: 'agent',
+        agentId: target.id,
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: Date.now(),
+      }
+      setMessages(prev => [...prev.slice(0, -1), errorMsg])
     }
 
 
